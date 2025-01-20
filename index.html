@@ -55,7 +55,7 @@ button {
                     recordedChunks.push(event.data);
                 };
         
-                // Aufnahme stoppen und das Video abspielen
+              
                 mediaRecorder.onstop = () => {
                     const blob = new Blob(recordedChunks, {
                         type: "video/webm"
