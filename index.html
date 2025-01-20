@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Recorder</title>
+  <style>body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+video {
+    width: 80%;
+    height: auto;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px;
+    margin: 10px;
+    font-size: 16px;
+}
+</style>
+</head>
+<body>
+    <h1>Eigenen Screen Recorder</h1>
+    <div>
+        <button id="startBtn">Start Recording</button>
+        <button id="stopBtn" disabled>Stop Recording</button>
+        <a id="downloadLink" style="display:none;" download="screen-recording.mp4">Download Recording</a>
+    </div>
+    <video id="videoElement" controls></video>
+
+    <script>let mediaRecorder;
+        let recordedChunks = [];
+        let stream;
+        
+        // Funktion zum Starten der Aufnahme
+        document.getElementById("startBtn").addEventListener("click", startRecording);
+        document.getElementById("stopBtn").addEventListener("click", stopRecording);
+        
+        async function startRecording() {
+            try {
+                // Bildschirm teilen (screen capture)
+                stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true
+                });
+        
+                // MediaRecorder initialisieren
+                mediaRecorder = new MediaRecorder(stream);
+        
+                // Daten sammeln, während aufgenommen wird
+                mediaRecorder.ondataavailable = (event) => {
+                    recordedChunks.push(event.data);
+                };
+        
+                // Aufnahme stoppen und das Video abspielen
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, {
+                        type: "video/webm"
+                    });
+        
+                    // Video im Video-Tag anzeigen
+                    const videoURL = URL.createObjectURL(blob);
+                    document.getElementById("videoElement").src = videoURL;
+        
+                    // Download-Link anzeigen
+                    const downloadLink = document.getElementById("downloadLink");
+                    downloadLink.href = videoURL;
+                    downloadLink.style.display = "inline";
+                };
+        
+                // Aufnahme starten
+                mediaRecorder.start();
+                document.getElementById("startBtn").disabled = true;
+                document.getElementById("stopBtn").disabled = false;
+            } catch (err) {
+                console.error("Fehler beim Zugriff auf den Bildschirm: ", err);
+            }
+        }
+        
+        // Funktion zum Stoppen der Aufnahme
+        function stopRecording() {
+            mediaRecorder.stop();
+            stream.getTracks().forEach(track => track.stop());
+            document.getElementById("startBtn").disabled = false;
+            document.getElementById("stopBtn").disabled = true;
+        }
+        </script>
+</body>
+</html>
