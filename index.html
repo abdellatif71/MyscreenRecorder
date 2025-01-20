@@ -50,7 +50,7 @@ button {
                 // MediaRecorder initialisieren
                 mediaRecorder = new MediaRecorder(stream);
         
-                // Daten sammeln, während aufgenommen wird
+          
                 mediaRecorder.ondataavailable = (event) => {
                     recordedChunks.push(event.data);
                 };
